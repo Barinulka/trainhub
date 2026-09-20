@@ -7,7 +7,7 @@ namespace App\Domain\Training\Entity;
 use App\Domain\Training\ValueObject\TrainingDuration;
 use InvalidArgumentException;
 
-class WorkoutDraft
+final class WorkoutDraft
 {
     private string $title;
     private TrainingDuration $duration;

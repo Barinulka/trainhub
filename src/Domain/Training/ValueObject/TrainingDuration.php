@@ -6,7 +6,7 @@ namespace App\Domain\Training\ValueObject;
 
 use InvalidArgumentException;
 
-readonly class TrainingDuration
+final readonly class TrainingDuration
 {
     private function __construct(
         private int $duration,
