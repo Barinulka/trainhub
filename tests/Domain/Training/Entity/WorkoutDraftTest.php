@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Domain\Training\Entity;
 
+use App\Domain\Training\Entity\Exercise;
+use App\Domain\Training\Entity\PlannedExercise;
 use App\Domain\Training\Entity\WorkoutDraft;
+use App\Domain\Training\ValueObject\RepetitionScheme;
 use App\Domain\Training\ValueObject\TrainingDuration;
+use App\Domain\Training\ValueObject\Weight;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -89,11 +93,95 @@ class WorkoutDraftTest extends TestCase
         $this->assertSame(10, $previousDuration->minutes());
     }
 
+    public function testNewDraftHasNoExercises(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+
+        $this->assertSame([], $workoutDraft->exercises());
+    }
+
+    public function testAddsPlannedExercise(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+        $plannedExercise = $this->createPlannedExercise();
+
+        $workoutDraft->addExercise($plannedExercise);
+        $actualExercises = $workoutDraft->exercises();
+
+        $this->assertCount(1, $actualExercises);
+        $this->assertSame($plannedExercise, $actualExercises[0]);
+    }
+
+    public function testKeepsExercisesInInsertionOrder(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+
+        $first = $this->createPlannedExercise();
+        $second = new PlannedExercise(
+            new Exercise('Становая тяга'),
+            RepetitionScheme::fromSetsAndRepetitionPerSet(4, 6),
+            Weight::fromGrams(72_500),
+        );
+
+        $workoutDraft->addExercise($first);
+        $workoutDraft->addExercise($second);
+
+        $exercises = $workoutDraft->exercises();
+
+        self::assertCount(2, $exercises);
+        self::assertSame($first, $exercises[0]);
+        self::assertSame($second, $exercises[1]);
+    }
+
+    public function testAllowsAddingSamePlannedExerciseTwice(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+        $plannedExercise = $this->createPlannedExercise();
+
+        $workoutDraft->addExercise($plannedExercise);
+        $workoutDraft->addExercise($plannedExercise);
+
+        $exercises = $workoutDraft->exercises();
+
+        self::assertCount(2, $exercises);
+        self::assertSame($plannedExercise, $exercises[0]);
+        self::assertSame($plannedExercise, $exercises[1]);
+    }
+
+    public function testChangingReturnedArrayDoesNotChangeDraftExercises(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+        $first = $this->createPlannedExercise();
+
+        $workoutDraft->addExercise($first);
+
+        $returnedExercises = $workoutDraft->exercises();
+
+        $returnedExercises[] = new PlannedExercise(
+            new Exercise('Становая тяга'),
+            RepetitionScheme::fromSetsAndRepetitionPerSet(4, 6),
+            Weight::fromGrams(72_500),
+        );
+
+        self::assertCount(2, $returnedExercises);
+        self::assertCount(1, $workoutDraft->exercises());
+        self::assertSame($first, $workoutDraft->exercises()[0]);
+    }
+
     private function createWorkoutDraft(): WorkoutDraft
     {
         $title = 'Тренировка ног';
         $duration = TrainingDuration::fromMinutes(10);
 
         return new WorkoutDraft($title, $duration);
+    }
+
+    private function createPlannedExercise(): PlannedExercise
+    {
+        return new PlannedExercise(
+            new Exercise('Приседания', 'Описание'),
+            RepetitionScheme::fromSetsAndRepetitionPerSet(10, 3),
+            Weight::fromGrams(72_500),
+        );
     }
 }

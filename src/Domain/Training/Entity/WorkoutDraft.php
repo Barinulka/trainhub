@@ -12,6 +12,9 @@ final class WorkoutDraft
     private string $title;
     private TrainingDuration $duration;
 
+    /** @var list<PlannedExercise> */
+    private array $exercises = [];
+
     public function __construct(
         string $title,
         TrainingDuration $duration
@@ -38,6 +41,16 @@ final class WorkoutDraft
     public function changeDuration(TrainingDuration $newDuration): void
     {
         $this->duration = $newDuration;
+    }
+
+    public function addExercise(PlannedExercise $exercise): void
+    {
+        $this->exercises[] = $exercise;
+    }
+
+    public function exercises(): array
+    {
+        return $this->exercises;
     }
 
     private function normalizeTitle(string $title): string
