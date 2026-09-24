@@ -168,6 +168,39 @@ class WorkoutDraftTest extends TestCase
         self::assertSame($first, $workoutDraft->exercises()[0]);
     }
 
+    public function testEmptyDraftHasZeroTotalVolume(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+
+        $totalVolume = $workoutDraft->totalVolumeInGrams();
+
+        self::assertSame(0, $totalVolume);
+    }
+
+    public function testCalculatesTotalVolumeOfAllExercises(): void
+    {
+        $workoutDraft = $this->createWorkoutDraft();
+
+        $first = new PlannedExercise(
+            new Exercise('Приседания'),
+            RepetitionScheme::fromSetsAndRepetitionPerSet(3, 10),
+            Weight::fromGrams(72_500),
+        );
+
+        $second = new PlannedExercise(
+            new Exercise('Становая тяга'),
+            RepetitionScheme::fromSetsAndRepetitionPerSet(4, 6),
+            Weight::fromGrams(50_000),
+        );
+
+        $workoutDraft->addExercise($first);
+        $workoutDraft->addExercise($second);
+
+        $totalVolume = $workoutDraft->totalVolumeInGrams();
+
+        self::assertSame(3_375_000, $totalVolume);
+    }
+
     private function createWorkoutDraft(): WorkoutDraft
     {
         $title = 'Тренировка ног';

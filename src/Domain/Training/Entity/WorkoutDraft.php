@@ -53,6 +53,17 @@ final class WorkoutDraft
         return $this->exercises;
     }
 
+    public function totalVolumeInGrams(): int
+    {
+        $volumeInGrams = 0;
+
+        foreach ($this->exercises as $exercise) {
+            $volumeInGrams += $exercise->volumeInGrams();
+        }
+
+        return $volumeInGrams;
+    }
+
     private function normalizeTitle(string $title): string
     {
         $title = trim($title);
