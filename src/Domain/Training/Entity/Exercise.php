@@ -4,11 +4,22 @@ declare(strict_types=1);
 
 namespace App\Domain\Training\Entity;
 
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 
+#[ORM\Entity]
 final class Exercise
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     private string $name;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description;
 
     public function __construct(
@@ -17,6 +28,11 @@ final class Exercise
     ) {
         $this->name = $this->normalizeName($name);
         $this->description = $this->normalizeDescription($description);
+    }
+
+    public function id(): ?int
+    {
+        return $this->id;
     }
 
     public function name(): string

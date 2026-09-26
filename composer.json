@@ -28,7 +28,10 @@
         "symfony/console": "^8.0",
         "symfony/yaml": "^8.0",
         "symfony/dotenv": "^8.0",
-        "symfony/flex": "^2"
+        "symfony/flex": "^2",
+        "doctrine/doctrine-bundle": "^3.3",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.7"
     },
     "config": {
         "allow-plugins": {
